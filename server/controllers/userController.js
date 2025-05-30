@@ -1,6 +1,6 @@
-import userModel from "../models/userModel.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import userModel from "../models/userModel.js";
 
 const registerUser = async (req, res) => {
     try {
@@ -8,6 +8,11 @@ const registerUser = async (req, res) => {
 
         if (!name || !email || !password) {
             return res.json({ success: false, message: 'Missing Details' });
+        }
+
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.json({ success: false, message: 'Email already in use' });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -22,7 +27,9 @@ const registerUser = async (req, res) => {
         const newUser = new userModel(userData);
         const user = await newUser.save();
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            expiresIn: '1d'
+        });
 
         res.json({ success: true, token, user: { name: user.name } });
 
@@ -35,6 +42,11 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.json({ success: false, message: 'Missing email or password' });
+        }
+
         const user = await userModel.findOne({ email });
 
         if (!user) {
@@ -44,7 +56,9 @@ const loginUser = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch) {
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+                expiresIn: '1d'
+            });
             res.json({ success: true, token, user: { name: user.name } });
         } else {
             return res.json({ success: false, message: 'Invalid credentials' });
@@ -55,4 +69,5 @@ const loginUser = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser };
+export { loginUser, registerUser };
+
