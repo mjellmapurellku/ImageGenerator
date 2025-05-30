@@ -8,7 +8,7 @@ import Result from './pages/Result'
 import Login from './components/Login'
 import { AppContext } from './context/AppContext'
 import ImageGenerator from './components/ImageGenerator'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 function App(){
 
