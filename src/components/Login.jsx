@@ -3,6 +3,7 @@ import { assets } from "../assets/assets";
 import { AppContext } from "../context/AppContext";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const Login = () => {
     const [state, setState] = useState('Login');
@@ -25,11 +26,22 @@ const Login = () => {
                     localStorage.setItem('token', data.token); // Fixed from getItem to setItem
                     setShowLogin(false);
                 } else {
-                    // Optional: handle failed login here
+                    toast.error(data.message);
+                }
+            } else {
+                const { data } = await axios.post(backendUrl + '/api/user/register', { name, email, password });
+
+                if (data.success) {
+                    setToken(data.token);
+                    setUser(data.user);
+                    localStorage.setItem('token', data.token); // Fixed from getItem to setItem
+                    setShowLogin(false);
+                } else {
+                    toast.error(data.message);
                 }
             }
         } catch (error) {
-            console.error('Error during login:', error); // Fixed catch block syntax
+            toast.error(error.message); // Fixed catch block syntax
         }
     };
 
