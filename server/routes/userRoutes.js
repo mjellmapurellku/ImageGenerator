@@ -1,14 +1,13 @@
-userRoutes.js
-
 import express from 'express';
-import { registerUser, loginUser } from '../controllers/userController.js';
-import { userCredits } from '../middlewares/auth.js';
+import { loginUser, registerUser } from '../controllers/userController.js';
+import { userAuth } from '../middlewares/auth.js';
+
 
 const userRouter = express.Router();
 
 userRouter.post('/register', registerUser);
 userRouter.post('/login', loginUser);
- userRouter.post('/credits', userAuth , userCredits);
+userRouter.post('/credits', userAuth);
 
 export default userRouter;
 

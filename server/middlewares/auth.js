@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
 
 const userAuth= async (req, res, next) =>{
@@ -26,4 +26,5 @@ const userAuth= async (req, res, next) =>{
     }
 ;
 
-export {registerUser, loginUser, userCredits}
+export { userAuth };
+

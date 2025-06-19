@@ -1,15 +1,14 @@
-import React from 'react';
+import { motion } from 'framer-motion';
 import { assets } from '../assets/assets';
-import {motion} from 'framer-motion'
 
 function Description() {
   return (
-    <motion.div c
+    <motion.div 
     initial={{opacity: 0.2, y:100}}
     transition={{duration: 1}}
     whileInView={{opacity:1, y:0}}
     viewport={{once: true}}
-    lassName='flex flex-col items-center justify-center my-24 p-6 md:px-28'>
+    className='flex flex-col items-center justify-center my-24 p-6 md:px-28'>
       <h1 className='text-4xl sm:text-5xl font-semibold mb-4'>Create AI Images</h1>
       <p className='text-gray-500 mb-8'>Turn your imagination into visuals</p>
 

@@ -68,6 +68,31 @@ const loginUser = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 };
+const verifyRazorpay = async(req, res) =>{
+    try{
+        const{razprpay_order_id} = req.body;
+        const orderInfo = await razorpayInstance.orders.fetch(razprpay_order_id)
+        if(orderInfo.status === 'paid'){
+            const transactionData = await transactionModel.findById(orderInfo.reciept)
+            if(transactionData.payment){
+                return res.json({success: false, message: 'Payment failed'})
+            }
 
+            const userData = await userModel.findById(transactionData.userId)
+            const creditBalance = userData.creditBalance + transactionData.credits
+            await userModel.findByIdAndUpdate(userData._id, {creditBalance})
+            await transactionModel.findByIdAndUpdate(transactionData._id, {payment:true})
+
+            res.json({success: false, message: 'Credits Added'})
+        }else{
+             res.json({success: false, message: 'Credits Added'})
+        }
+    }catch(error){
+        console.log(error);
+        res.json({success: false, message: error.message})
+    }
+}
+
+export { loginUser, registerUser };
 
 

@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { assets } from '../assets/assets'
-import {motion} from 'framer-motion'
 
 function Result() {
 

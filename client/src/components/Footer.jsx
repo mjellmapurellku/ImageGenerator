@@ -1,4 +1,3 @@
-import React from 'react';
 import { assets } from '../assets/assets';
 
 const Footer = () => {
@@ -21,4 +20,4 @@ const Footer = () => {
   );
 }
 
-export default Footer;
+export default Footer

@@ -1,6 +1,5 @@
-import React from 'react'
+import { motion } from 'framer-motion'
 import { stepsData } from '../assets/assets'
-import {motion} from 'framer-motion'
 
 function Steps() {
   return (

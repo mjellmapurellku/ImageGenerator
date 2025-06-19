@@ -1,8 +1,8 @@
-import React, { useContext } from 'react'
-import { assets } from '../assets/assets'
 import { motion } from "framer-motion"
-import { AppContext } from '../context/AppContext'
+import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { assets } from '../assets/assets'
+import { AppContext } from '../context/AppContext'
 
 function Header() {
 
