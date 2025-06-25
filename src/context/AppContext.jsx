@@ -1,80 +1,18 @@
-import axios from 'axios';
-import { createContext, use, useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import { toast } from "react-toastify";
+import { createContext, useState } from 'react';
 
+export const AppContext = createContext();
 
-
-export const AppContext = createContext()
-
-const AppContextProvider = (props)=>{
+const AppContextProvider = ({ children }) => {
+    const [showLogin, setShowLogin] = useState(true); // Default to true for testing
+    const [token, setToken] = useState(localStorage.getItem('token') || '');
     const [user, setUser] = useState(null);
-    const [showLogin, setShowLogin] = useState(false);
-    const [token, setToken] = useState(localStorage.getItem('token'))
-
-    const[credit, setCredit] = useState(false)
-
-    const backendUrl = import.meta.env.VITE_BACKEND_URL
-
-    const navigate = useNavigate()
-
-    const loadCreditsData = async()=>{
-        try {
-            const {data}= await axios.get(backendUrl + '/api/user/credits', {headers: {token}})
-
-            if(data.success){
-                setCredit(data.credits)
-                setUser(data.user)
-
-            }
-
-        } catch (error) {
-            console.log(error)
-            toast.error(error.message)
-        }
-    }
-
-    const ImageGenerator = async (prompt)=>{
-        try {
-            const {data} = await axios.post(backendUrl + '/api.image/image-generator', {prompt}, {headers: {token}})
-
-            if(data.success){
-                loadCreditsData()
-                return data.resultImage
-            }else{
-                toast.error(data.message)
-                loadCreditsData()
-                if(data.creditBalance === 0){
-                    navigate('/buy')
-                }
-            }
-
-        } catch (error) {
-            toast.error(error.message)
-        }
-    }
-
-    const logout = ()=>{
-        localStorage.removeItem('token');
-        setToken('')
-        setUser(null)
-    }
-
-    useEffect(()=>{
-        if(token){
-            loadCreditsData()
-        }
-
-    },[token])
-
-    const value = {
-        user, setUser, showLogin, setShowLogin, backendUrl, token, setToken, credit, setCredit, loadCreditsData, logout, generateImage
-    }
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
     return (
-        <AppContext.Provider value={value}>
-                {props.children}
+        <AppContext.Provider value={{ showLogin, setShowLogin, token, setToken, user, setUser, backendUrl }}>
+            {children}
         </AppContext.Provider>
-    )
-}
-export default AppContextProvider
+    );
+};
+
+export default AppContextProvider; // Add default export

@@ -1,6 +1,13 @@
-import bcrypt from 'bcrypt';
+import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import userModel from "../models/userModel.js";
+import Razorpay from 'razorpay';
+import userModel from '../models/userModel.js';
+import transactionModel from '../models/transactionModel.js';
+
+const razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_yCdJquTC27i5J',
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 const registerUser = async (req, res) => {
     try {
@@ -15,8 +22,8 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: 'Email already in use' });
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(password, salt);
 
         const userData = {
             name,
@@ -34,7 +41,7 @@ const registerUser = async (req, res) => {
         res.json({ success: true, token, user: { name: user.name } });
 
     } catch (error) {
-        console.log(error);
+        console.error('Registration error:', error);
         res.json({ success: false, message: error.message });
     }
 };
@@ -53,7 +60,7 @@ const loginUser = async (req, res) => {
             return res.json({ success: false, message: 'User does not exist' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcryptjs.compare(password, user.password);
 
         if (isMatch) {
             const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -64,35 +71,34 @@ const loginUser = async (req, res) => {
             return res.json({ success: false, message: 'Invalid credentials' });
         }
     } catch (error) {
-        console.log(error);
+        console.error('Login error:', error);
         res.json({ success: false, message: error.message });
     }
 };
-const verifyRazorpay = async(req, res) =>{
-    try{
-        const{razprpay_order_id} = req.body;
-        const orderInfo = await razorpayInstance.orders.fetch(razprpay_order_id)
-        if(orderInfo.status === 'paid'){
-            const transactionData = await transactionModel.findById(orderInfo.reciept)
-            if(transactionData.payment){
-                return res.json({success: false, message: 'Payment failed'})
+
+const verifyRazorpay = async (req, res) => {
+    try {
+        const { razorpay_order_id } = req.body;
+        const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
+        if (orderInfo.status === 'paid') {
+            const transactionData = await transactionModel.findById(orderInfo.receipt);
+            if (transactionData.payment) {
+                return res.json({ success: false, message: 'Payment already processed' });
             }
 
-            const userData = await userModel.findById(transactionData.userId)
-            const creditBalance = userData.creditBalance + transactionData.credits
-            await userModel.findByIdAndUpdate(userData._id, {creditBalance})
-            await transactionModel.findByIdAndUpdate(transactionData._id, {payment:true})
+            const userData = await userModel.findById(transactionData.userId);
+            const creditBalance = userData.creditBalance + transactionData.credits;
+            await userModel.findByIdAndUpdate(userData._id, { creditBalance });
+            await transactionModel.findByIdAndUpdate(transactionData._id, { payment: true });
 
-            res.json({success: false, message: 'Credits Added'})
-        }else{
-             res.json({success: false, message: 'Credits Added'})
+            res.json({ success: true, message: 'Credits Added' });
+        } else {
+            res.json({ success: false, message: 'Payment not completed' });
         }
-    }catch(error){
-        console.log(error);
-        res.json({success: false, message: error.message})
+    } catch (error) {
+        console.error('Razorpay verification error:', error);
+        res.json({ success: false, message: error.message });
     }
-}
+};
 
-export { loginUser, registerUser };
-
-
+export { loginUser, registerUser, verifyRazorpay };
