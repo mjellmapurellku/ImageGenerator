@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
+import Login from './components/Login.jsx';
 import { AppContext } from './context/AppContext.jsx';
-import Login from './Login.jsx';
 
 function App() {
     const { showLogin, setShowLogin } = useContext(AppContext);
